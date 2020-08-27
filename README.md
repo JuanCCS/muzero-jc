@@ -1,5 +1,5 @@
 # muzero-jc
-Implement MuZero paper and make training it fast using Rust
+Implement MuZero paper and make training fast using Rust
 
 Technologies:
 Python, Rust, PyTorch
