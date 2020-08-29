@@ -4,15 +4,10 @@ class MuZeroConfig:
 class SharedStorage:
     def latest_network(self):
         pass
-
-class ReplayBuffer:
-    pass
-
+ 
 class Network:
     pass
 
-class Node:
-    pass
 
 class MinMaxStats:
     def __init__(known_bounds):
