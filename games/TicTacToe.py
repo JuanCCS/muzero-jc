@@ -39,8 +39,8 @@ class TicTacToeGame(Game):
 
     def render(self) -> str:
         """render.
-        This function is in charge of drawing the board. 
-        The output you can directly print to the console.
+        Classical reperesentation of the board
+        with Xs and Os
 
         Parameters
         ----------
@@ -48,8 +48,7 @@ class TicTacToeGame(Game):
         Returns
         -------
         str
-            A string representation of the board you can directly print
-
+            Console printable string
         """
         str_board = ""
         for i in range(5):
