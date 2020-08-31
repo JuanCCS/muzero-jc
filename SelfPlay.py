@@ -1,3 +1,6 @@
+from ReplayBuffer import ReplayBuffer
+from Mcts import Mcts
+
 class MuZeroConfig:
     pass
 
@@ -7,7 +10,6 @@ class SharedStorage:
  
 class Network:
     pass
-
 
 class MinMaxStats:
     def __init__(known_bounds):
@@ -92,4 +94,9 @@ class SelfPlay:
         )
         _, action = self.softmax_sample(visit_counts, t)
         return action
-   
+
+
+if __name__ == '__main__':
+    self_play = SelfPlay()
+    self_play.run_selfplay()
+
