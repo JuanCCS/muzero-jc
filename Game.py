@@ -1,4 +1,6 @@
-class Game:
+from abc import ABC
+
+class Game(ABC):
     def __init__(self, action_space_size: int, discount: float):
         self.environment = Environment()
         self.history = []
@@ -8,12 +10,15 @@ class Game:
         self.action_space_size = action_space_size
         self.discount = discount
     
+    @abstractmethod
     def terminal(self) -> bool:
         pass
 
+    @abstractmethod
     def legal_actions(self) -> List[Action]:
         pass
 
+    @abstractmethod
     def apply_action(self, action: Action):
         reward = self.environment.step() # must extract reward from environment or network?
         self.rewards.append(reward)
@@ -28,6 +33,7 @@ class Game:
         ])
         self.root_values.append(root.value())
     
+    @abstractmethod
     def make_image(self, state_index: int):
         pass
 
@@ -55,6 +61,7 @@ class Game:
                 targets.append((0, last_reward, []))
         return targets
     
+    @abstractmethod
     def to_play(self) -> Player:
         return Player()
 
