@@ -1,3 +1,20 @@
+from typing import List
+
+from MuZeroConfig import MuZeroConfig
+from Node import Node
+from ActionHistory import ActionHistory
+from Action import Action
+from MinMaxStats import MinMaxStats
+
+class Network:
+    pass
+
+class NetworkOutput:
+    pass
+
+class Player:
+    pass
+
 class Mcts:
     def run(self, config: MuZeroConfig, root: Node, 
             action_history: ActionHistory, network: Network):
@@ -14,7 +31,7 @@ class Mcts:
         network : Network
             network
         """
-        min_max_stats = MinMaxStats(config.known_bounds)
+        min_max_stats = MinMaxStats()
 
         for _ in range(config.num_simulations):
             history = action_history.clone()

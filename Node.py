@@ -1,5 +1,5 @@
 class Node:
-    def __init__(self, prior: float):
+    def __init__(self, prior: float = 0.0):
         self.visit_count = 0
         self.to_play = -1
         self.prior = prior

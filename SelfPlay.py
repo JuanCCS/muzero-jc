@@ -1,27 +1,21 @@
 from ReplayBuffer import ReplayBuffer
 from Mcts import Mcts
-
-class MuZeroConfig:
-    pass
+from MuZeroConfig import MuZeroConfig
+from Node import Node
+from Game import Game
+from ActionHistory import ActionHistory
 
 class SharedStorage:
     def latest_network(self):
-        pass
+        return []
  
 class Network:
-    pass
-
-class MinMaxStats:
-    def __init__(known_bounds):
-        pass
-
-class ActionHistory:
     pass
 
 
 class SelfPlay:
 
-    def __init__():
+    def __init__(self):
         self.mcts = Mcts()
 
     def run_selfplay(self, config: MuZeroConfig ,storage: SharedStorage, 
@@ -39,7 +33,7 @@ class SelfPlay:
         """
         while True:
             network = storage.latest_network()
-            game = self.play_game()
+            game = self.play_game(config, network)
             replay_buffer.save_game(game)
 
     def play_game(self, config: MuZeroConfig, network: Network) -> Game:
@@ -97,6 +91,14 @@ class SelfPlay:
 
 
 if __name__ == '__main__':
+    from games.TicTacToe import TicTacToeConfig
     self_play = SelfPlay()
-    self_play.run_selfplay()
+    config = TicTacToeConfig()
+    replay_buffer = ReplayBuffer(config)
+    shared_storage = SharedStorage()
+    self_play.run_selfplay(
+        config,
+        shared_storage,
+        replay_buffer
+    )
 

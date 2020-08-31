@@ -1,3 +1,6 @@
+from MuZeroConfig import MuZeroConfig
+from Game import Game
+
 class ReplayBuffer:
     def __init__(self, config: MuZeroConfig):
         self.window_size = config.window_size

@@ -1,0 +1,16 @@
+doq==0.6.3
+future==0.18.2
+greenlet==0.4.16
+Jinja2==2.11.2
+MarkupSafe==1.1.1
+more-itertools==8.5.0
+msgpack==1.0.0
+numpy==1.19.1
+pandas==1.1.1
+parso==0.8.0
+pynvim==0.4.1
+python-chess==0.31.4
+python-dateutil==2.8.1
+pytz==2020.1
+six==1.15.0
+torch==1.6.0
