@@ -2,6 +2,7 @@ import numpy as np
 from typing import List
 from itertools import cycle
 from more_itertools import all_equal
+from math import floor
 
 from Game import Game
 from Environment import Environment
@@ -36,7 +37,33 @@ class TicTacToeGame(Game):
         self.env.step(action)
         self.env.player = next(self.env.players) 
 
+    def render(self) -> str:
+        """render.
+        This function is in charge of drawing the board. 
+        The output you can directly print to the console.
 
+        Parameters
+        ----------
+
+        Returns
+        -------
+        str
+            A string representation of the board you can directly print
+
+        """
+        str_board = ""
+        for i in range(5):
+            if i % 2 == 0:
+                str_board += "| {}  " * 3
+            else:
+                str_board += " --- " * 3
+            str_board += "\n"
+
+            char_map = (' ', 'x', 'o')
+            chars = map(lambda x: char_map[x], board)
+
+        return str_board.format(*chars)
+    
 class TicTacToe(Environment):
     def __init__(self):
         self.start_game()
