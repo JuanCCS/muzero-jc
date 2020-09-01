@@ -1,3 +1,5 @@
+import numpy as np
+
 from MuZeroConfig import MuZeroConfig
 from Game import Game
 
@@ -20,7 +22,8 @@ class ReplayBuffer:
                 for (g,i) in game_pos]
 
     def sample_game(self) -> Game:
-        return self.buffer[0]
+        return np.random.choice(self.buffer)
 
     def sample_position(self, game) -> int:
-        return -1
+        return np.random.choice(game.history)
+
