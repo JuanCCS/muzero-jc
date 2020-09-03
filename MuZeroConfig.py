@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from Network import NetworkTypes
 
 class MuZeroConfig(ABC):
 
@@ -47,6 +48,27 @@ class MuZeroConfig(ABC):
         self.lr_init = lr_init 
         self.lr_decay_rate = 0.1 
         self.lr_decay_steps = lr_decay_steps
+
+        # Type of Network
+        self.network_type = NetworkTypes.fully_connected
+
+        # Size of the "normalized" vector for the rewards
+        self.support_size = 10
+        
+        # Size of the observation (State of the Game)
+        self.observation_shape = ()
+        
+        # Number of previous moves to feed into the network
+        self.move_history = 0
+
+        # Fully Connected Network
+        self.encoding_size = 32
+        self.fc_representation_layers = []  # Define the hidden layers in the representation network
+        self.fc_dynamics_layers = [16]  # Define the hidden layers in the dynamics network
+        self.fc_reward_layers = [16]  # Define the hidden layers in the reward network
+        self.fc_value_layers = []  # Define the hidden layers in the value network
+        self.fc_policy_layers = []  # Define the hidden layers in the policy network
+
 
     @abstractmethod
     def new_game(self):

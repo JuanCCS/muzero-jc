@@ -22,12 +22,6 @@ class TicTacToeConfig(MuZeroConfig):
                  lr_init: float = 0.1,
                  lr_decay_steps: float = 4e5):
 
-        def visit_softmax_temperature_fn(num_moves, training_steps):
-            if num_moves < 30:
-                return 1.0
-            else: 
-                return 0.0
-
         super(TicTacToeConfig, self).__init__(action_space_size,
                                               max_moves,
                                               discount,
@@ -38,7 +32,8 @@ class TicTacToeConfig(MuZeroConfig):
                                               num_actors,
                                               lr_init,
                                               lr_decay_steps,
-                                              visit_softmax_temperature_fn)
+                                              lambda x: 1.0)
+        self.observation_shape = (3, 3, 3)
 
     def new_game(self):
         return TicTacToeGame(self.action_space_size, self.discount)
@@ -67,30 +62,34 @@ class TicTacToeGame(Game):
                 3. Current turn (1 for player 1 and 0 for player 2)
 
         """
-        obs_board = np.zeros((3,9))
+        obs_board = np.zeros((3, 3, 3))
         # player_one
-        obs_board[0] = [1 if x == 1 else 0 for x in self.env.board] 
+        obs_board[0] = np.reshape([1 if x == 1 else 0 for x in self.env.board], 
+                                  (3, 3)) 
         #player two
-        obs_board[1] = [1 if x == 2 else 0 for x in self.env.board] 
+        obs_board[1] = np.reshape([1 if x == 2 else 0 for x in self.env.board],
+                                  (3, 3))
         #turn
-        obs_board[2] = np.ones(9) if self.env.player == 1 else np.zeros(9)
-        return self.env.board
+        obs_board[2] = np.ones((3,3)) if self.env.player == 1 else np.zeros(9)
+        return obs_board 
 
     def legal_actions(self) -> List[Action]:
-        empty_squares = list(filter(None, self.env.board))
+        empty_squares = np.where(self.env.board == 0)[0]
         return [Action(x) for x in empty_squares]
 
     def terminal(self) -> bool:
         winners=((0,1,2),(3,4,5),(6,7,8),(0,3,6),
                  (1,4,7),(2,5,8),(0,4,8),(2,4,6))
         for w in winners:
-            if self.env.board[w[0]] and all_equal(self.env.board[w]):
+            if self.env.board[w[0]] and all_equal(self.env.board[list(w)]):
+                print('returning terminal')
                 return True
         return False
 
     def apply_action(self, action: Action):
         self.env.step(action)
         self.env.player = next(self.env.players) 
+        print(self.render())
 
     def to_play(self) -> int:
         return self.env.player
@@ -117,7 +116,8 @@ class TicTacToeGame(Game):
             str_board += "\n"
 
             char_map = (' ', 'x', 'o')
-            chars = map(lambda x: char_map[x], board)
+            chars = map(lambda x: char_map[x], 
+                        self.env.board.astype(int).tolist())
 
         return str_board.format(*chars)
     
@@ -132,4 +132,5 @@ class TicTacToe(Environment):
 
     def step(self, action: Action):
         self.board[action.index] = self.player
+        print(self.board)
 

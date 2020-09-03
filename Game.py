@@ -32,7 +32,7 @@ class Game(ABC):
 
     def store_search_stats(self, root: Node):
         sum_visits = sum(child.visit_count for child in root.children.values())
-        action_space = (Action(index) for index in range(self.action_space_size))
+        action_space = (index for index in range(self.action_space_size))
         self.child_visits.append([
             root.children[a].visit_count / sum_visits if a in root.children else 0
             for a in action_space

@@ -18,3 +18,6 @@ class ActionHistory:
 
     def action_space(self) -> List[Action]:
         return [Action(i) for i in range(self.action_space_size)]
+
+    def to_play(self) -> int:
+        return (len(self.history) % 2) + 1

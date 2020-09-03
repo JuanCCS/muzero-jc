@@ -1,19 +1,18 @@
-from typing import List
+from __future__ import annotations
+from typing import TYPE_CHECKING, List
 
-from MuZeroConfig import MuZeroConfig
+import math
+from operator import itemgetter
+
 from Node import Node
 from ActionHistory import ActionHistory
 from Action import Action
 from MinMaxStats import MinMaxStats
+from Network import NetworkOutput
 
-class Network:
-    pass
+if TYPE_CHECKING:
+    from MuZeroConfig import MuZeroConfig
 
-class NetworkOutput:
-    pass
-
-class Player:
-    pass
 
 class Mcts:
     def run(self, config: MuZeroConfig, root: Node, 
@@ -37,12 +36,10 @@ class Mcts:
             history = action_history.clone()
             node = root
             search_path = [node]
-
             while node.expanded():
                 action, node = self.select_child(config, node, min_max_stats)
                 history.add_action(action)
                 search_path.append(node)
-
             parent = search_path[-2]
             network_output = network.recurrent_inference(parent.hidden_state,
                                                          history.last_action())
@@ -66,9 +63,11 @@ class Mcts:
             network_output
         """
         node.to_play = to_play
-        node.hidden_state = netowrk_output.hidden_state
+        node.hidden_state = network_output.hidden_state
         node.reward = network_output.reward
-        policy = {a: math.exp(nework_output.policy_logits[a]) for a in legal_actions}
+        legal_actions = [a.index for a in legal_actions]
+        policy_logits = network_output.policy_logits.tolist()[0]
+        policy = {a: math.exp(policy_logits[a]) for a in legal_actions}
         policy_sum = sum(policy.values())
         for action, p in policy.items():
             node.children[action] = Node(p/policy_sum)
@@ -95,3 +94,29 @@ class Mcts:
             node.visit_count += 1
             min_max_stats.update(node.value())
             value = node.reward + discount * value
+
+    def select_child(self, config: MuZeroConfig, node: Node, min_max_stats: MinMaxStats):
+        ucb_scores = []
+        for action, child in node.children.items():
+            score = self.ucb_score(config, node, child, min_max_stats)
+            ucb_scores.append((score, action, child))
+
+        _, action, child = max(ucb_scores, key=itemgetter(0))
+        return action, child
+
+
+    def ucb_score(self, config: MuZeroConfig, parent: Node, child: Node, min_max_stats: MinMaxStats):
+        pb_c = math.log((parent.visit_count + config.pb_c_base + 1) /
+                        config.pb_c_base) + config.pb_c_init
+        pb_c *= math.sqrt(parent.visit_count) / (child.visit_count + 1)
+
+        prior_score = pb_c * child.prior
+
+        if child.visit_count > 0:
+            value_score = child.reward + config.discount * min_max_stats.normalize(child.value())
+        else:
+            value_score = 0
+
+        return prior_score + value_score
+
+

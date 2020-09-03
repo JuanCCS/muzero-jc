@@ -1,7 +1,12 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 import numpy as np
 
-from MuZeroConfig import MuZeroConfig
 from Game import Game
+
+if TYPE_CHECKING:
+    from MuZeroConfig import MuZeroConfig
 
 class ReplayBuffer:
     def __init__(self, config: MuZeroConfig):
