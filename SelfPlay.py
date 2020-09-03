@@ -63,9 +63,11 @@ class SelfPlay:
                                   network.initial_inference(current_observation))
             self.add_exploration_noise(config, root)
             self.mcts.run(config, root, game.action_history(), network)
+            print(game.action_history())
             action = self.select_action(config, len(game.history), root, network)
             game.apply_action(Action(action))
             game.store_search_stats(root)
+            print(game.render())
 
         return game
 

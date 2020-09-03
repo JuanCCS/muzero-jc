@@ -1,10 +1,11 @@
 from typing import List
+import copy
 
 from Action import Action
 
 class ActionHistory:
     def __init__(self, history: List[Action], action_space_size:int):
-        self.history = history
+        self.history = copy.copy(history)
         self.action_space_size = action_space_size
 
     def clone(self):

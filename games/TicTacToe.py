@@ -12,7 +12,7 @@ from MuZeroConfig import MuZeroConfig
 class TicTacToeConfig(MuZeroConfig):
     def __init__(self,
                  action_space_size: int = 9,
-                 max_moves: int = 5,
+                 max_moves: int = 9,
                  discount: float = 1.0,
                  dirichlet_alpha: float = 0.3,
                  num_simulations: int = 800,
@@ -62,15 +62,16 @@ class TicTacToeGame(Game):
                 3. Current turn (1 for player 1 and 0 for player 2)
 
         """
+        board_shape = (3,3)
         obs_board = np.zeros((3, 3, 3))
         # player_one
         obs_board[0] = np.reshape([1 if x == 1 else 0 for x in self.env.board], 
-                                  (3, 3)) 
+                                  board_shape) 
         #player two
         obs_board[1] = np.reshape([1 if x == 2 else 0 for x in self.env.board],
-                                  (3, 3))
+                                  board_shape)
         #turn
-        obs_board[2] = np.ones((3,3)) if self.env.player == 1 else np.zeros(9)
+        obs_board[2] = np.ones(board_shape) if self.env.player == 1 else np.zeros(board_shape)
         return obs_board 
 
     def legal_actions(self) -> List[Action]:
@@ -88,8 +89,7 @@ class TicTacToeGame(Game):
 
     def apply_action(self, action: Action):
         self.env.step(action)
-        self.env.player = next(self.env.players) 
-        print(self.render())
+        self.history.append(action)
 
     def to_play(self) -> int:
         return self.env.player
@@ -132,5 +132,5 @@ class TicTacToe(Environment):
 
     def step(self, action: Action):
         self.board[action.index] = self.player
-        print(self.board)
+        self.player = next(self.players) 
 
