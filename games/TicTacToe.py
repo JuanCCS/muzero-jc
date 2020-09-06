@@ -1,4 +1,5 @@
 import numpy as np
+import os
 from typing import List
 from itertools import cycle
 from more_itertools import all_equal
@@ -34,6 +35,7 @@ class TicTacToeConfig(MuZeroConfig):
                                               lr_decay_steps,
                                               lambda x: 1.0)
         self.observation_shape = (3, 3, 3)
+        self.path = os.path.join(self.path, 'tic_tac_toe')
 
     def new_game(self):
         return TicTacToeGame(self.action_space_size, self.discount)
@@ -83,7 +85,6 @@ class TicTacToeGame(Game):
                  (1,4,7),(2,5,8),(0,4,8),(2,4,6))
         for w in winners:
             if self.env.board[w[0]] and all_equal(self.env.board[list(w)]):
-                print('returning terminal')
                 return True
         return False
 

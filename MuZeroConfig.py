@@ -1,3 +1,5 @@
+import os
+
 from abc import ABC, abstractmethod
 from Network import NetworkTypes
 
@@ -31,7 +33,7 @@ class MuZeroConfig(ABC):
 
         # UCB formula
         self.pb_c_base = 19652 
-        self.pb_c_init = 1.25 
+        self.pb_c_init = 1.25
 
         ### Training
         self.training_steps = int(1e6) 
@@ -68,6 +70,8 @@ class MuZeroConfig(ABC):
         self.fc_reward_layers = [16]  # Define the hidden layers in the reward network
         self.fc_value_layers = []  # Define the hidden layers in the value network
         self.fc_policy_layers = []  # Define the hidden layers in the policy network
+        dir_path = os.path.dirname(os.path.realpath(__file__)) 
+        self.path = os.path.join(dir_path, 'store')
 
 
     @abstractmethod
