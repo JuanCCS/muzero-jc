@@ -81,15 +81,11 @@ class TicTacToeGame(Game):
         return [Action(x) for x in empty_squares]
 
     def terminal(self) -> bool:
-        winners=((0,1,2),(3,4,5),(6,7,8),(0,3,6),
-                 (1,4,7),(2,5,8),(0,4,8),(2,4,6))
-        for w in winners:
-            if self.env.board[w[0]] and all_equal(self.env.board[list(w)]):
-                return True
-        return False
+        return self.env.terminal()
 
     def apply_action(self, action: Action):
-        self.env.step(action)
+        reward = self.env.step(action)
+        self.rewards.append(reward)
         self.history.append(action)
 
     def to_play(self) -> int:
@@ -131,7 +127,20 @@ class TicTacToe(Environment):
         self.players = cycle([1, 2])
         self.player = next(self.players) 
 
+    def terminal(self) -> bool:
+        winners=((0,1,2),(3,4,5),(6,7,8),(0,3,6),
+                 (1,4,7),(2,5,8),(0,4,8),(2,4,6))
+        for w in winners:
+            if self.board[w[0]] and all_equal(self.board[list(w)]):
+                return True
+        return False
+
     def step(self, action: Action):
+        if self.board[action.index] != 0:
+            return -10
         self.board[action.index] = self.player
+        if self.terminal():
+            return 1
         self.player = next(self.players) 
+        return 0
 

@@ -26,7 +26,7 @@ class Game(ABC):
 
     @abstractmethod
     def apply_action(self, action: Action):
-        reward = self.env.step() # must extract reward from environment or network?
+        reward = self.env.step(action) 
         self.rewards.append(reward)
         self.history.append(action)
 

@@ -1,5 +1,7 @@
+import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.nn.functional as F
 
 from typing import List
 
@@ -12,9 +14,8 @@ from Game import Game
 
 class Trainer:
     def train_network(self, config: MuZeroConfig, storage: SharedStorage, replay_buffer: ReplayBuffer):
-        # network: get new network?
-        # learning_rate = define learning rate
-        # optimizer = define Momentum Optimizer
+        network = config.network_typeMuZeroNetwork(config.network_type)
+        optimizer = optim.SGD(network.params(), config.learning_rate, config.momentum, config.weight_decay)
         for i in range(config.training_steps):
             if i % config.checkpoint_interval == 0:
                 storage.save_network(i, network)
@@ -23,7 +24,7 @@ class Trainer:
         storage.save_network(config.training_steps, network)
 
     def scale_gradient(self, tensor, scale):
-        return tensor * scale + torch_stop_gradient(tensor) + (1-scale)
+        return tensor * scale + tensor.detach() + (1-scale)
 
     def update_weights(self, optimizer: optim.Optimizer, 
                        network: MuZeroNetwork, batch, weight_decay: float):
@@ -44,16 +45,30 @@ class Trainer:
                 l = (
                     self.scalar_loss(value, target_value)  + 
                     self.scalar_loss(reward, target_reward) + 
-                    torch_softmax_cross_entropy_with_logits(
-                        logits=policy_logits, labels=target_policy))
+                    torch.sum(-target_policy  * nn.functional.log_softmax(
+                        policy_logits, -1),-1)
+                )
 
                 loss += self.scale_gradient(l, gradient_scale)
                 
         for weights in network.get_weights():
-            loss += weight_decay * torch_l2_loss(weights)
+            loss += weight_decay * nn.MSEloss(weights)
 
         optimizer.step(loss)
 
     def scalar_loss(self, prediction, target) -> float:
         return -1
 
+
+if __name__ == '__main__':
+    from games.TicTacToe import TicTacToeConfig
+    from SelfPlay import SelfPlay
+    self_play = SelfPlay()
+    config = TicTacToeConfig()
+    replay_buffer = ReplayBuffer(config)
+    shared_storage = SharedStorage(config)
+    self_play.run_selfplay(
+        config,
+        shared_storage,
+        replay_buffer
+    )
