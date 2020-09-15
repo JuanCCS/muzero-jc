@@ -1,5 +1,9 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
+import torch
+import os
+
 from Network import MuZeroNetwork
 
 if TYPE_CHECKING:
@@ -9,7 +13,7 @@ if TYPE_CHECKING:
 class SharedStorage:
     def __init__(self, config: MuZeroConfig):
         self.config = config
-        self._networks = None
+        self._networks = {}
 
     def latest_network(self) -> MuZeroNetwork:
         if self._networks:
@@ -19,4 +23,5 @@ class SharedStorage:
 
     def save_network(self, step: int, network: MuZeroNetwork):
         self._networks[step] = network
-        network.save(self.config.path)
+        torch.save(network, os.path.join(self.config.path, 
+                                         str(step).zfill(2) + '.pkl'))

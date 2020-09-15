@@ -26,6 +26,10 @@ class NetworkOutput:
     policy_logits: Dict[Action, float]
     hidden_state: List[float]
 
+    def __iter__(self):
+        for value in (self.value, self.reward, self.policy_logits, self.hidden_state):
+            yield value
+
 class NetworkTypes(Enum):
     fully_connected = "fully_connected"
     residual = "residual"
@@ -180,7 +184,7 @@ class MuZeroFullyConnectedNetwork(nn.Module):
         return normalize_encoded_state(encoded_state)
 
     def dynamics(self, encoded_state, action):
-        action = torch.Tensor([[action]])
+        action = torch.Tensor([[action.index]])
         action_one_hot = (
             torch.zeros((
                 action.shape[0], self.action_space_size
@@ -216,5 +220,3 @@ class MuZeroFullyConnectedNetwork(nn.Module):
                              reward=support_to_scalar(reward, self.support_size),
                              policy_logits=policy_logits,
                              hidden_state=next_encoded_state)
-
-

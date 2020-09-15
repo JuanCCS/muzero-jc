@@ -14,8 +14,8 @@ from Game import Game
 
 class Trainer:
     def train_network(self, config: MuZeroConfig, storage: SharedStorage, replay_buffer: ReplayBuffer):
-        network = config.network_typeMuZeroNetwork(config.network_type)
-        optimizer = optim.SGD(network.params(), config.learning_rate, config.momentum, config.weight_decay)
+        network = MuZeroNetwork(config)
+        optimizer = optim.SGD(network.parameters(), config.lr_init, config.momentum, config.weight_decay)
         for i in range(config.training_steps):
             if i % config.checkpoint_interval == 0:
                 storage.save_network(i, network)
@@ -41,20 +41,31 @@ class Trainer:
             for prediction, target in zip(predictions, targets):
                 gradient_scale, value, reward, policy_logits = prediction
                 target_value, target_reward, target_policy = target
+                if target_policy:
+                    neg_policy = -torch.Tensor(target_policy)
+                    log_softmax = nn.LogSoftmax(dim=1)
+                    log_sm = log_softmax(policy_logits)
 
-                l = (
-                    self.scalar_loss(value, target_value)  + 
-                    self.scalar_loss(reward, target_reward) + 
-                    torch.sum(-target_policy  * nn.functional.log_softmax(
-                        policy_logits, -1),-1)
-                )
+                    l = (
+                        self.scalar_loss(value, target_value)  + 
+                        self.scalar_loss(reward, target_reward) + 
+                        torch.sum(neg_policy * log_sm)
+                    )
 
-                loss += self.scale_gradient(l, gradient_scale)
+                    loss += self.scale_gradient(l, gradient_scale)
                 
-        for weights in network.get_weights():
-            loss += weight_decay * nn.MSEloss(weights)
+        for _, weights in network.state_dict().items():
+            print(loss)
+            print(weight_decay)
+            mse_loss = torch.sum(torch.pow(weights,2))/2
+            print(weight_decay * mse_loss)
+            loss += weight_decay * mse_loss
 
-        optimizer.step(loss)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        print(loss)
+
 
     def scalar_loss(self, prediction, target) -> float:
         return -1
@@ -66,9 +77,7 @@ if __name__ == '__main__':
     self_play = SelfPlay()
     config = TicTacToeConfig()
     replay_buffer = ReplayBuffer(config)
-    shared_storage = SharedStorage(config)
-    self_play.run_selfplay(
-        config,
-        shared_storage,
-        replay_buffer
-    )
+    storage = SharedStorage(config)
+    trainer = Trainer()
+    trainer.train_network(config=config, storage=storage, replay_buffer=replay_buffer)
+
